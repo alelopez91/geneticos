@@ -49,6 +49,35 @@ def crear_poblacion(): #funcionando
   # Crea una poblacion nueva de individuos
     return [individual() for i in range(num)]
 
+# def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
+#   fitness = 100
+
+#   #Regla 1: Se genero la base y la posicion inicial
+#   # +5 de fitness por cada uno
+#   for cuad in individuo:
+#     if cuad.x == x_base and cuad.y == y_base
+#   a = 0
+#   b = 0
+#   c = 0
+
+#   for cuadrante in individuo:
+#     if cuadrante.parte_camino == 1:
+#       a += 1
+
+#     if cuadrante.es_base == 1:
+#       b += 1
+
+#   fitness = (b * c)/a
+
+#   return fitness
+
+# def buscar_cuadrante(individuo, pos_x, pos_y):
+#   esta = False
+#   for cuadrante in individuo:
+#     if cuadrante.x == pos_x and cuadrante.y == pos_y
+#       return esta = True
+#   return esta = True
+
 def selection_and_reproduction(population): #falta hacer
     """
         Puntua todos los elementos de la poblacion (population) y se queda con los mejores
