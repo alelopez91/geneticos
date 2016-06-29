@@ -37,13 +37,10 @@ def individual(): #funcionando
     ind.append([])
     x = 0
     for j in range(col_mapa):
-      if i==1 and j==1:
-        ind[i].append(Cuadrante_individuo(False,x,y,True))
+      if i==0 or j==0 or i==filas_mapa-1 or j==col_mapa-1:
+        ind[i].append(Cuadrante_individuo(False,x,y))
       else:
-        if i==0 or j==0 or i==filas_mapa-1 or j==col_mapa-1:
-          ind[i].append(Cuadrante_individuo(False,x,y,False))
-        else:
-          ind[i].append(Cuadrante_individuo(random.choice([True, False]),x,y,False))
+        ind[i].append(Cuadrante_individuo(random.choice([True, False]),x,y))
       x+=32
     y+=32
   return ind
@@ -104,11 +101,16 @@ def dibujar_individuo():
         else:
           pygame.draw.rect(pantalla, (000, 128, 000), rectangulo)
 
-def imprimir_population():
+def imprimir_population(population):
   for pops in population:
     for cuads in pops:
       for c in cuads:
         print(c.pertenece, c.x, c.y, c.es_base)
+
+def imprimir_individuo(individuo):
+  for cuads in individuo:
+    for c in cuads:
+      print(c.pertenece, c.x, c.y)
 
 #Comienza programa
 aux = 0
@@ -130,8 +132,10 @@ for row in myconstants.ENTORNO7:
   aux +=1
 
 running = True
-population = crear_poblacion()#Inicializar una poblacion
-imprimir_population()
+# population = crear_poblacion()#Inicializar una poblacion
+# imprimir_population(population)
+asd = individual()
+imprimir_individuo(asd)
 
 
 while running:
