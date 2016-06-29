@@ -100,16 +100,31 @@ def selection_and_reproduction(population): #falta hacer
   # 
   # 
   # 
-    #Se mezcla el material genetico para crear nuevos individuos
-    for i in range(len(population)-pressure):
-        punto_i = random.randint(1,filas_mapa-1) #Se elige un punto para hacer el intercambio
-        punto_j = random.randint(1,col_mapa-1) #Se elige un punto para hacer el intercambio
-        padre = random.sample(selected, 2) #Se eligen dos padres
-          # 
-        population[i][:punto] = padre[0][:punto] #Se mezcla el material genetico de los padres en cada nuevo individuo
-        population[i][punto:] = padre[1][punto:]
-  # 
-    return population #El array 'population' tiene ahora una nueva poblacion de individuos, que se devuelven
+    #Se mezcla el material genetico para crear nuevos individuos    
+    mitad_uno = []
+    mitad_dos = []
+    punto_corte = False
+
+    for inds in population:
+      punto_i = random.randint(1,filas_mapa-1) #Se elige un punto para hacer el intercambio
+      punto_j = random.randint(1,col_mapa-1) #Se elige un punto para hacer el intercambio
+      padre = random.sample(selected, 2) #Se eligen dos padres
+      for cuads in inds:
+        for c in cuads:
+          if c.x == punto_i*32 and c.y == punto_j*32:
+            punto_corte = True
+          else:
+            punto_corte = False
+
+          if punto_corte == True:
+            mitad_dos.append(c)
+          else:
+            mitad_uno.append(c)
+        inds[:punto_i][:punto_j] = padre[0][:punto_i][:punto_j] #Se mezcla el material genetico de los padres en cada nuevo individuo
+        inds[punto_i:][punto_j:] = padre[1][punto_i:][punto_j:]
+    return population
+            
+            
 
 def dibujar_mapa():
   for obs in obstaculos:
@@ -167,7 +182,8 @@ for row in myconstants.ENTORNO7:
 running = True
 population = crear_poblacion()#Inicializar una poblacion
 dibujar_population(population)
-# imprimir_population(population)
+selection_and_reproduction(population)
+imprimir_population(population)
 
 
 while running:
