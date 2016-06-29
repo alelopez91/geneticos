@@ -70,10 +70,10 @@ def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
       if c.pertenece == True:
         fitness -= 1
         if c.x == x_base and c.y == y_base:
-          fitness += 6
+          fitness += 5
           tiene_base = True
         if c.x == x_inicial and c.y == y_inicial:
-          fitness += 6
+          fitness += 5
           tiene_inicio = True
 
   return fitness
@@ -89,8 +89,11 @@ def selection_and_reproduction(population): #falta hacer
         Por ultimo muta a los individuos.
   # 
     """
-    puntuados = [ (calcular_fitness(i), i) for i in population] #Calcula el fitness de cada individuo, y lo guarda en pares ordenados de la forma (5 , [1,2,1,1,4,1,8,9,4,1])
+    puntuados = []
+    for ind in population:
+      puntuados.append((calcular_fitness(ind, 32, 32, 64, 96),ind)) #Calcula el fitness de cada individuo, y lo guarda en pares ordenados de la forma (5 , [1,2,1,1,4,1,8,9,4,1])
     puntuados = [i[1] for i in sorted(puntuados)] #Ordena los pares ordenados y se queda solo con el array de valores
+    
     population = puntuados
   # 
     selected =  puntuados[(len(puntuados)-pressure):] #Esta linea selecciona los 'n' individuos del final, donde n viene dado por 'pressure'
@@ -99,7 +102,8 @@ def selection_and_reproduction(population): #falta hacer
   # 
     #Se mezcla el material genetico para crear nuevos individuos
     for i in range(len(population)-pressure):
-        punto = random.randint(1,largo-1) #Se elige un punto para hacer el intercambio
+        punto_i = random.randint(1,filas_mapa-1) #Se elige un punto para hacer el intercambio
+        punto_j = random.randint(1,col_mapa-1) #Se elige un punto para hacer el intercambio
         padre = random.sample(selected, 2) #Se eligen dos padres
           # 
         population[i][:punto] = padre[0][:punto] #Se mezcla el material genetico de los padres en cada nuevo individuo
@@ -129,7 +133,6 @@ def dibujar_population(population):
           pygame.draw.rect(pantalla, (255, 0, 0), rectangulo)
         else:
           pygame.draw.rect(pantalla, (000, 128, 000), rectangulo)
-      # time.sleep(1)
 
 def imprimir_population(population):
   for pops in population:
@@ -163,7 +166,8 @@ for row in myconstants.ENTORNO7:
 
 running = True
 population = crear_poblacion()#Inicializar una poblacion
-imprimir_population(population)
+dibujar_population(population)
+# imprimir_population(population)
 
 
 while running:
@@ -188,7 +192,6 @@ while running:
 
   # Dibujar pantalla
   pantalla.fill((0, 0, 0))
-  dibujar_population(population);
   pygame.display.flip()
 
 
