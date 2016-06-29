@@ -1,6 +1,6 @@
 import pygame
 
-class Cuadrante(object):
+class Cuadrante_mapa(object):
     
   def __init__(self, pos_x, pos_y, vec_arr, vec_aba, vec_izq, vec_der, tipo):
     self.posicion_x = pos_x
