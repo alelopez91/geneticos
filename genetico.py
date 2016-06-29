@@ -49,34 +49,167 @@ def crear_poblacion(): #funcionando
   # Crea una poblacion nueva de individuos
     return [individual() for i in range(num)]
 
-# def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
-#   fitness = 100
+def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
+  fitness = 100
+  tiene_base = False
+  tiene_inicio = False
+  distancia = 0
+  caminos = 0
+  revisados = []
+  caminos_pendientes = []
+  solucion = []
+  izq = False
+  arr = False
+  aba = False
+  der = False
 
-#   #Regla 1: Se genero la base y la posicion inicial
-#   # +5 de fitness por cada uno
-#   for cuad in individuo:
-#     if cuad.x == x_base and cuad.y == y_base
-#   a = 0
-#   b = 0
-#   c = 0
 
-#   for cuadrante in individuo:
-#     if cuadrante.parte_camino == 1:
-#       a += 1
+  #Regla 1: Se genero la base y la posicion inicial. Se suma 5 al fitness por cada uno
+  for cuads in individuo:
+    for c in cuads:
+      if c.x == x_base and c.y == y_base:
+        fitness += 5
+        tiene_base = True
+      if c.x == x_inicial and c.y == y_inicial:
+        fitness += 5
+        tiene_inicio = True
 
-#     if cuadrante.es_base == 1:
-#       b += 1
 
-#   fitness = (b * c)/a
+  #Regla 2: Menor distancia recorrida. Por cada cuadrante pisado se resta uno al fitness
+  #Regla 3: Conectividad de los cuadrantes. Se suma por cada cuadrante conectado. Si existe un
+  # segmento desde la pos inicial a la base se suma un bonus de 10 al fitness
+  if tiene_base == True and tiene_inicio == True:
+    for cuads in individuo:
+      for c in cuads:
+        if c.pertenece == True:
+          distancia += 1
+          fitness -= 1
+          if c.x == x_base and c.y == y_base:
+            if buscar_der(individuo,c.x,c.y) == True:
+              izq = True
+              caminos +=1
+            else:
+              izq = False
+            if buscar_aba(individuo,c.x,c.y) == True:
+              arr = True
+              caminos +=1
+            else:
+              arr = False
+            if buscar_izq(individuo,c.x,c.y) == True:
+              der = True
+              caminos +=1
+            else:
+              der = False
+            if buscar_arr(individuo,c.x,c.y) == True:
+              aba = True
+              caminos +=1
+            else:
+              aba = False
+            if caminos > 1:
+              caminos_pendientes.append(c)
+            if caminos == 1:
+              solucion.append(c)
+            revisados.append(c)
+          else:
+            if der == False:
+              if buscar_der(individuo,c.x,c.y) == True:
+                izq = True
+                caminos +=1
+              else:
+                izq = False
+            if aba == False:            
+              if buscar_aba(individuo,c.x,c.y) == True:
+                arr = True
+                caminos +=1
+              else:
+                arr = False
+            if izq == False:
+              if buscar_izq(individuo,c.x,c.y) == True:
+                der = True
+                caminos +=1
+              else:
+                der = False
+            if arr == False:            
+              if buscar_arr(individuo,c.x,c.y) == True:
+                aba = True
+                caminos +=1
+              else:
+                aba = False
+            if caminos > 1:
+              caminos_pendientes.append(c)
+            if caminos == 1:
+              solucion.append(c)
+            revisados.append(c)
 
-#   return fitness
 
-# def buscar_cuadrante(individuo, pos_x, pos_y):
-#   esta = False
-#   for cuadrante in individuo:
-#     if cuadrante.x == pos_x and cuadrante.y == pos_y
-#       return esta = True
-#   return esta = True
+
+
+
+
+
+
+
+
+
+
+
+            
+  
+        
+          fitness += 5
+        if c.x == x_inicial and c.y == y_inicial:
+          fitness += 5
+
+
+  a = 0
+  b = 0
+  c = 0
+
+  for cuadrante in individuo:
+    if cuadrante.parte_camino == 1:
+      a += 1
+
+    if cuadrante.es_base == 1:
+      b += 1
+
+  fitness = (b * c)/a
+
+  return fitness
+
+def buscar_arr(individuo, pos_x, pos_y):
+  for cuads in individuo:
+    for c in cuads:
+      if c.x == pos_x and c.y-32 == pos_y:
+        if c.pertenece == True:
+          return True
+        else:
+          return False
+def buscar_aba(individuo, pos_x, pos_y):
+  for cuads in individuo:
+    for c in cuads:
+      if c.x == pos_x and c.y+32 == pos_y:
+        if c.pertenece == True:
+          return True
+        else:
+          return False
+def buscar_izq(individuo, pos_x, pos_y):
+  for cuads in individuo:
+    for c in cuads:
+      if c.x-32 == pos_x and c.y == pos_y:
+        if c.pertenece == True:
+          return True
+        else:
+          return False
+def buscar_der(individuo, pos_x, pos_y):
+  for cuads in individuo:
+    for c in cuads:
+      if c.x+32 == pos_x and c.y == pos_y:
+        if c.pertenece == True:
+          return True
+        else:
+          return False
+
+
 
 def selection_and_reproduction(population): #falta hacer
     """
