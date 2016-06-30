@@ -15,17 +15,18 @@ pygame.init()
 
 # Configurar pantalla
 pygame.display.set_caption("Cortadora de Cesped Inteligente!")
-pantalla = pygame.display.set_mode((256, 192))
+pantalla = pygame.display.set_mode((640, 480))
 
 fps = pygame.time.Clock()
 obstaculos = [] # Contenedor de obstaculos
 pastos = []     # Contenedor de pasto
 
-filas_mapa = 6 #La longitud del material genetico de cada individuo
-col_mapa = 8
-num = 3 #La cantidad de individuos que habra en la poblacion
+filas_mapa = 15 #La longitud del material genetico de cada individuo
+col_mapa = 20
+num = 10 #La cantidad de individuos que habra en la poblacion
 pressure = 3 #Cuantos individuos se seleccionan para reproduccion. Necesariamente mayor que 2
-mutation_chance = 0.2 #La probabilidad de que un individuo mute
+mutacion_prob = 20 #La probabilidad de que un individuo mute
+generaciones = 2 #Cantidad de generaciones que se producen
 
 mapa = []
 
@@ -48,6 +49,7 @@ def individual(): #funcionando
 
 def crear_poblacion(): #funcionando
   # Crea una poblacion nueva de individuos
+    print("Poblacion inicial: " + str(num))
     return [individual() for i in range(num)]
 
 def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
@@ -78,7 +80,7 @@ def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
 
   return fitness
 
-def selection_and_reproduction(population): #falta hacer
+def seleccion_and_reproduccion(population): #falta hacer
     """
         Puntua todos los elementos de la poblacion (population) y se queda con los mejores
         guardandolos dentro de 'selected'.
@@ -101,31 +103,74 @@ def selection_and_reproduction(population): #falta hacer
   # 
   # 
     #Se mezcla el material genetico para crear nuevos individuos    
-    mitad_uno = []
-    mitad_dos = []
-    punto_corte = False
-
-    for inds in population:
-      punto_i = random.randint(1,filas_mapa-1) #Se elige un punto para hacer el intercambio
-      punto_j = random.randint(1,col_mapa-1) #Se elige un punto para hacer el intercambio
-      padre = random.sample(selected, 2) #Se eligen dos padres
-      for cuads in inds:
-        for c in cuads:
-          if c.x == punto_i*32 and c.y == punto_j*32:
-            punto_corte = True
-          else:
-            punto_corte = False
-
-          if punto_corte == True:
-            mitad_dos.append(c)
-          else:
-            mitad_uno.append(c)
-        inds[:punto_i][:punto_j] = padre[0][:punto_i][:punto_j] #Se mezcla el material genetico de los padres en cada nuevo individuo
-        inds[punto_i:][punto_j:] = padre[1][punto_i:][punto_j:]
+    
+    for k in range(len(population)-pressure):
+      hijo_1 = []
+      hijo_2 = []
+      fila_1 = []
+      fila_2 = []
+      punto_corte = False
+  
+      punto_i = random.randint(0,filas_mapa-1) #Se elige un punto para hacer el intercambio
+      punto_j = random.randint(0,col_mapa-1) #Se elige un punto para hacer el intercambio
+      padres = random.sample(selected, 2) #Se eligen dos padres
+      for i in range(len(padres)):
+        for f in range(filas_mapa):
+          for c in range(col_mapa):
+            objeto = padres[i][f][c]
+            objeto_1 = padres[0][f][c]
+            objeto_2 = padres[1][f][c]
+            if objeto.x == punto_i*32 and objeto.y == punto_j*32:
+              punto_corte = True
+            if punto_corte == False:
+              fila_1.append(objeto_1)
+              fila_2.append(objeto_2)
+            else:
+              fila_2.append(objeto_1)
+              fila_1.append(objeto_2)
+          hijo_1.append(fila_1)
+          hijo_2.append(fila_2)
+          # print(hijo_1)
+          # print(hijo_2)
+          fila_1 = []
+          fila_2 = []
+        population.append(hijo_1)
+        population.append(hijo_2)
+        hijo_1 = []
+        hijo_2 = []
+    print("Cantidad de seleccionados: "+str(len(population)))
+      
     return population
-            
-            
 
+def mutacion(population):
+    """
+        Se mutan los individuos al azar. Sin la mutacion de nuevos genes nunca podria
+        alcanzarse la solucion.
+    """
+    elemento = []
+    cant_mutaciones = int(filas_mapa * col_mapa * 0.02)
+    cant_mutantes = 0
+    for inds in population:
+      if random.randint(1,100) <= mutacion_prob:
+        cant_mutantes += 1
+        elemento = inds
+        for m in range(cant_mutaciones):
+          punto_i = random.randint(0,filas_mapa-1)
+          punto_j = random.randint(0,col_mapa-1)
+          for cuads in elemento:
+            for c in cuads:
+              if c.x == punto_i*32 and c.y == punto_j*32:
+                if c.pertenece == True:
+                  c.pertenece = False
+                else:
+                  c.pertenece = True
+        population.append(elemento)
+        elemento = []
+    print("Cantidad de mutaciones: " + str(cant_mutantes))
+
+    return population
+              
+    
 def dibujar_mapa():
   for obs in obstaculos:
     if obs.tocado == True:
@@ -140,20 +185,33 @@ def dibujar_mapa():
       pygame.draw.rect(pantalla, (000, 128, 000), pasto.rect)
 
 def dibujar_population(population):
+  k=1
+  pantalla.fill((0, 0, 0))
+  time.sleep(1)
   for pops in population:
-    for cuads in pops:
-      for c in cuads:
-        rectangulo = pygame.Rect(c.x, c.y, 32, 32)
-        if c.pertenece == True:
-          pygame.draw.rect(pantalla, (255, 0, 0), rectangulo)
-        else:
-          pygame.draw.rect(pantalla, (000, 128, 000), rectangulo)
+    print("Individuo " + str(k) + " de " + str(len(population)))
+    dibujar_individuo(pops)
+    pygame.display.update()
+    time.sleep(.5)
+    k+=1
+
+def dibujar_individuo(individuo):
+  for filas in individuo:
+    for c in filas:
+      rectangulo = pygame.Rect(c.x, c.y, 32, 32)
+      if c.pertenece == True:
+        pygame.draw.rect(pantalla, (255, 0, 0), rectangulo)
+      else:
+        pygame.draw.rect(pantalla, (000, 128, 000), rectangulo)
 
 def imprimir_population(population):
+  i=1
   for pops in population:
+    print("#######################   Individuo %d  #########################" % i)
     for cuads in pops:
       for c in cuads:
         print(c.pertenece, c.x, c.y)
+    i+=1
 
 def imprimir_individuo(individuo):
   for cuads in individuo:
@@ -161,6 +219,13 @@ def imprimir_individuo(individuo):
       print(c.pertenece, c.x, c.y)
 
 #Comienza programa
+population = crear_poblacion() #Inicializar una poblacion
+  #Se evoluciona la poblacion
+for g in range(generaciones):
+  population = seleccion_and_reproduccion(population)
+  population = mutacion(population)
+
+dibujar_population(population)
 aux = 0
 x = y = 0
 
@@ -180,11 +245,6 @@ for row in myconstants.ENTORNO7:
   aux +=1
 
 running = True
-population = crear_poblacion()#Inicializar una poblacion
-dibujar_population(population)
-selection_and_reproduction(population)
-imprimir_population(population)
-
 
 while running:
   fps.tick(60)
@@ -195,19 +255,8 @@ while running:
     if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
       running = False
   
-  # population = crear_poblacion() #Inicializar una poblacion
-  # print("Poblacion Inicial:\n%s"%(population)) #Se muestra la poblacion inicial
-    
-    
-  # #Se evoluciona la poblacion
-  # for i in range(30):
-  #     population = selection_and_reproduction(population)
-    
-  # print("\nPoblacion Final:\n%s"%(population)) #Se muestra la poblacion evolucionada
-  # print("\n\n")
 
   # Dibujar pantalla
-  pantalla.fill((0, 0, 0))
   pygame.display.flip()
 
 
