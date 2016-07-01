@@ -3,6 +3,7 @@ import random
 import time
 import pygame
 import myconstants
+import pdb
 from cuadrante_mapa import Cuadrante_mapa
 from cuadrante_individuo import Cuadrante_individuo
 from obstaculo import Obstaculo
@@ -20,13 +21,14 @@ pantalla = pygame.display.set_mode((640, 480))
 fps = pygame.time.Clock()
 obstaculos = [] # Contenedor de obstaculos
 pastos = []     # Contenedor de pasto
+population = []
 
-filas_mapa = 15 #La longitud del material genetico de cada individuo
-col_mapa = 20
+filas_mapa = 10 #La longitud del material genetico de cada individuo
+col_mapa = 10
 num = 10 #La cantidad de individuos que habra en la poblacion
 pressure = 3 #Cuantos individuos se seleccionan para reproduccion. Necesariamente mayor que 2
 mutacion_prob = 20 #La probabilidad de que un individuo mute
-generaciones = 2 #Cantidad de generaciones que se producen
+generaciones = 3 #Cantidad de generaciones que se producen
 
 mapa = []
 
@@ -50,7 +52,19 @@ def individual(): #funcionando
 def crear_poblacion(): #funcionando
   # Crea una poblacion nueva de individuos
     print("Poblacion inicial: " + str(num))
-    return [individual() for i in range(num)]
+    contador = 0
+    while(contador < num):
+      ind = individual()
+      if contador == 0:
+        population.append(ind)
+        contador +=1
+        ind = []
+      else:
+        if esta_repetido(population, ind) == False:
+          population.append(ind)
+          contador+=1
+        ind = []
+
 
 def calcular_fitness(individuo, x_base, y_base, x_inicial, y_inicial):
   fitness = 100
@@ -114,32 +128,31 @@ def seleccion_and_reproduccion(population): #falta hacer
       punto_i = random.randint(0,filas_mapa-1) #Se elige un punto para hacer el intercambio
       punto_j = random.randint(0,col_mapa-1) #Se elige un punto para hacer el intercambio
       padres = random.sample(selected, 2) #Se eligen dos padres
-      for i in range(len(padres)):
-        for f in range(filas_mapa):
-          for c in range(col_mapa):
-            objeto = padres[i][f][c]
-            objeto_1 = padres[0][f][c]
-            objeto_2 = padres[1][f][c]
-            if objeto.x == punto_i*32 and objeto.y == punto_j*32:
-              punto_corte = True
-            if punto_corte == False:
-              fila_1.append(objeto_1)
-              fila_2.append(objeto_2)
-            else:
-              fila_2.append(objeto_1)
-              fila_1.append(objeto_2)
-          hijo_1.append(fila_1)
-          hijo_2.append(fila_2)
-          # print(hijo_1)
-          # print(hijo_2)
-          fila_1 = []
-          fila_2 = []
-        if buscar_repetidos(population, hijo_1) == False:
-          population.append(hijo_1)
-          hijo_1 = []
-        if buscar_repetidos(population, hijo_1) == False:
-          population.append(hijo_2)
-          hijo_2 = []
+      for f in range(filas_mapa):
+        for c in range(col_mapa):
+          objeto = padres[0][f][c]
+          objeto_1 = padres[0][f][c]
+          objeto_2 = padres[1][f][c]
+          if objeto.x == punto_i*32 and objeto.y == punto_j*32:
+            punto_corte = True
+          if punto_corte == False:
+            fila_1.append(objeto_1)
+            fila_2.append(objeto_2)
+          else:
+            fila_2.append(objeto_1)
+            fila_1.append(objeto_2)
+        hijo_1.append(fila_1)
+        hijo_2.append(fila_2)
+        # print(hijo_1)
+        # print(hijo_2)
+        fila_1 = []
+        fila_2 = []
+      if esta_repetido(population, hijo_1) == False:
+        population.append(hijo_1)
+      hijo_1 = []
+      if esta_repetido(population, hijo_2) == False:
+        population.append(hijo_2)
+      hijo_2 = []
     print("Cantidad de seleccionados: "+str(len(population)))
       
     return population
@@ -166,25 +179,26 @@ def mutacion(population):
                   c.pertenece = False
                 else:
                   c.pertenece = True
-        if buscar_repetidos(population,elemento) == False:
+        if esta_repetido(population,elemento) == False:
           population.append(elemento)
-          elemento = []
+        elemento = []
     print("Cantidad de mutaciones: " + str(cant_mutantes))
 
     return population
 
-def buscar_repetidos(population, individuo):
-  es_copia = True
+def esta_repetido(population, individuo):
+  celdas = filas_mapa * col_mapa
   for a in range(len(population)):
+    comparaciones = 0
     for b in range(filas_mapa):
       for d in range(col_mapa):
         popu = population[a][b][d]
-        print(popu.pertenece)
         copia = individuo[b][d]
-        print(copia.pertenece)
-        if popu.pertenece != copia.pertenece:
-          es_copia = False
-  return es_copia
+        if popu.pertenece == copia.pertenece:
+          comparaciones += 1
+    if comparaciones == celdas:
+      return True
+  return False
               
     
 def dibujar_mapa():
@@ -210,6 +224,7 @@ def dibujar_population(population):
     pygame.display.update()
     time.sleep(.5)
     k+=1
+    # pdb.set_trace()
 
 def dibujar_individuo(individuo):
   for filas in individuo:
@@ -235,12 +250,24 @@ def imprimir_individuo(individuo):
       print(c.pertenece, c.x, c.y)
 
 #Comienza programa
-population = crear_poblacion() #Inicializar una poblacion
-  #Se evoluciona la poblacion
+# m1 = individual()
+# m2 = individual()
+# m3 = individual()
+# m4 = individual()
+# population.append(m1)
+# population.append(m2)
+# population.append(m3)
+# population.append(m4)
+# esta_repetido(population,m4)
+# esta_repetido(population,m2)
+print("Fin")
+crear_poblacion() #Inicializar una poblacion
+  # Se evoluciona la poblacion
 for g in range(generaciones):
   population = seleccion_and_reproduccion(population)
   population = mutacion(population)
-
+  # pressure = pressure * 7
+ 
 dibujar_population(population)
 aux = 0
 x = y = 0
