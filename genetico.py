@@ -134,10 +134,12 @@ def seleccion_and_reproduccion(population): #falta hacer
           # print(hijo_2)
           fila_1 = []
           fila_2 = []
-        population.append(hijo_1)
-        population.append(hijo_2)
-        hijo_1 = []
-        hijo_2 = []
+        if buscar_repetidos(population, hijo_1) == False:
+          population.append(hijo_1)
+          hijo_1 = []
+        if buscar_repetidos(population, hijo_1) == False:
+          population.append(hijo_2)
+          hijo_2 = []
     print("Cantidad de seleccionados: "+str(len(population)))
       
     return population
@@ -164,11 +166,25 @@ def mutacion(population):
                   c.pertenece = False
                 else:
                   c.pertenece = True
-        population.append(elemento)
-        elemento = []
+        if buscar_repetidos(population,elemento) == False:
+          population.append(elemento)
+          elemento = []
     print("Cantidad de mutaciones: " + str(cant_mutantes))
 
     return population
+
+def buscar_repetidos(population, individuo):
+  es_copia = True
+  for a in range(len(population)):
+    for b in range(filas_mapa):
+      for d in range(col_mapa):
+        popu = population[a][b][d]
+        print(popu.pertenece)
+        copia = individuo[b][d]
+        print(copia.pertenece)
+        if popu.pertenece != copia.pertenece:
+          es_copia = False
+  return es_copia
               
     
 def dibujar_mapa():
